@@ -201,6 +201,7 @@ static void register_all(void)
     REGISTER_DECODER(MVC1,              mvc1);
     REGISTER_DECODER(MVC2,              mvc2);
     REGISTER_DECODER(MXPEG,             mxpeg);
+    REGISTER_ENCDEC(NICE,               nice);
     REGISTER_DECODER(NUV,               nuv);
     REGISTER_DECODER(PAF_VIDEO,         paf_video);
     REGISTER_ENCDEC (PAM,               pam);
