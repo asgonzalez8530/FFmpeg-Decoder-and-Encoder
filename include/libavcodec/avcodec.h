@@ -345,6 +345,7 @@ enum AVCodecID {
     AV_CODEC_ID_V210,
     AV_CODEC_ID_DPX,
     AV_CODEC_ID_MAD,
+    AV_CODEC_ID_NICE,  /* our codec ID tag is now bound to some integer, integer value unknown */
     AV_CODEC_ID_FRWU,
     AV_CODEC_ID_FLASHSV2,
     AV_CODEC_ID_CDGRAPHICS,
