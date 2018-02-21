@@ -31,8 +31,7 @@
 
 static const AVCodecDescriptor codec_descriptors[] = {
     /* video codecs */
-    {
-        /* NICE description */
+    { /* NICE description */
         .id        = AV_CODEC_ID_NICE,
         .type      = AVMEDIA_TYPE_VIDEO,
         .name      = "nice",
