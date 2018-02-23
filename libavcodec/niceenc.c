@@ -36,7 +36,7 @@ static const uint32_t rgb444_masks[]  = { 0x0F00, 0x00F0, 0x000F };
 static av_cold int nice_encode_init(AVCodecContext *avctx)
 {    
     // used to print info to the console for debugging 
-    av_log(NULL, AV_LOG_INFO, "IN NICEENC.C: Entered nice_encode_init"); 
+    av_log(NULL, AV_LOG_INFO, "\n *** IN NICEENC.C: Entered nice_encode_init *** \n"); 
     
     
     /* there is only one answer to this question may remove in future */
@@ -44,7 +44,7 @@ static av_cold int nice_encode_init(AVCodecContext *avctx)
     
     
     // used to print info to the console for debugging 
-    av_log(NULL, AV_LOG_INFO, "IN NICEENC.C: Leaving nice_encode_init"); 
+    av_log(NULL, AV_LOG_INFO, "\n *** IN NICEENC.C: Leaving nice_encode_init *** \n"); 
     return 0;
 }
 
@@ -53,7 +53,7 @@ static int nice_encode_frame(AVCodecContext *avctx, AVPacket *pkt,
 {
 
     // used to print info to the console for debugging 
-    av_log(NULL, AV_LOG_INFO, "IN NICEENC.C: Entered nice_encode_frame");     
+    av_log(NULL, AV_LOG_INFO, "\n *** IN NICEENC.C: Entered nice_encode_frame *** \n");     
     
     
     const AVFrame * const p = pict;
@@ -64,65 +64,30 @@ static int nice_encode_frame(AVCodecContext *avctx, AVPacket *pkt,
     int bit_count = avctx->bits_per_coded_sample;
     uint8_t *ptr, *buf;
 
-/* Don't think we need this
-#if FF_API_CODED_FRAME
-FF_DISABLE_DEPRECATION_WARNINGS
-    avctx->coded_frame->pict_type = AV_PICTURE_TYPE_I;
-    avctx->coded_frame->key_frame = 1;
-FF_ENABLE_DEPRECATION_WARNINGS
-#endif
-*/
-    /*switch (avctx->pix_fmt) {
-    case AV_PIX_FMT_RGB444:
-        compression = BMP_BITFIELDS;
-        pal = rgb444_masks; // abuse pal to hold color masks
-        pal_entries = 3;
-        break;
-    case AV_PIX_FMT_RGB565:
-        compression = BMP_BITFIELDS;
-        pal = rgb565_masks; // abuse pal to hold color masks
-        pal_entries = 3;
-        break;
-    case AV_PIX_FMT_RGB8:*/
-    /*case AV_PIX_FMT_BGR8:
-    case AV_PIX_FMT_RGB4_BYTE:
-    case AV_PIX_FMT_BGR4_BYTE:
-    case AV_PIX_FMT_GRAY8: */
+
     
     // used to print info to the console for debugging 
-    av_log(NULL, AV_LOG_INFO, "IN NICEENC.C: About to do palet"); 
+    av_log(NULL, AV_LOG_INFO, "\n *** IN NICEENC.C: About to do palet *** \n"); 
     
     
-    // this is palet information for AV_PIX_FMT_RGB8 may not need for our nice fmt
+    // this av_assert1 we believe is used to help figure out line size
     av_assert1(bit_count == 8);
-    avpriv_set_systematic_pal2(palette256, AV_PIX_FMT_RGB8);
-    pal = palette256;
     
     // used to print info to the console for debugging 
-    av_log(NULL, AV_LOG_INFO, "IN NICEENC.C: Passed pallet portion"); 
+    av_log(NULL, AV_LOG_INFO, "\n *** IN NICEENC.C: Passed pallet portion *** \n"); 
     
-        /*break;
         
-    case AV_PIX_FMT_PAL8:
-        pal = (uint32_t *)p->data[1];
-        break;
-    case AV_PIX_FMT_MONOBLACK:
-        pal = monoblack_pal;
-        break;
-    }*/
     
     // MAY NOT NEED but DEFS need solution for n_bytes_image
     
-    if (pal && !pal_entries) pal_entries = 1 << bit_count;
+    
     n_bytes_per_row = ((int64_t)avctx->width * (int64_t)bit_count + 7LL) >> 3LL;
     pad_bytes_per_row = (4 - n_bytes_per_row) & 3;
     n_bytes_image = avctx->height * (n_bytes_per_row + pad_bytes_per_row);
     
     // used to print info to the console for debugging 
-    av_log(NULL, AV_LOG_INFO, "IN NICEENC.C: Passed n_bytes_image portion"); 
+    av_log(NULL, AV_LOG_INFO, "\n *** IN NICEENC.C: Passed n_bytes_image portion *** \n"); 
 
-    // STRUCTURE.field refer to the MSVC documentation for BITMAPFILEHEADER
-    // and related pages.
 
     /* NICE format header size is always 12 bytes, The chars 'N''I''C''E'
      * followed by the width and height
@@ -142,16 +107,13 @@ FF_ENABLE_DEPRECATION_WARNINGS
     bytestream_put_le32(&buf, avctx->height);    
     
     // used to print info to the console for debugging 
-    av_log(NULL, AV_LOG_INFO, "IN NICEENC.C: Wrote NICE header");      
-    
-    /* Used to put pallet in file, not using pallet
-    for (i = 0; i < pal_entries; i++)
-        bytestream_put_le32(&buf, pal[i] & 0xFFFFFF); */
+    av_log(NULL, AV_LOG_INFO, "\n *** IN NICEENC.C: Wrote NICE header *** \n");      
     
     
+    /*
     // BMP files are bottom-to-top so we start from the end...
     ptr = p->data[0] + (avctx->height - 1) * p->linesize[0];
-    buf = pkt->data + hsize;
+    //buf = pkt->data + hsize;
     for(i = 0; i < avctx->height; i++) 
     {
         
@@ -161,6 +123,20 @@ FF_ENABLE_DEPRECATION_WARNINGS
         memset(buf, 0, pad_bytes_per_row);
         buf += pad_bytes_per_row;
         ptr -= p->linesize[0]; // ... and go back
+    }
+    */
+    
+    
+    // our own copy loop for each pixel
+    // nice format is represented as top to bottom!
+    ptr = p->data[0];
+    for(i = 0; i < avctx->height; i++) 
+    {
+      for (int j = 0; j < avctx->width; j++)
+      {
+        bytestream_put_byte(&buf, ptr[0]);
+        ptr++;
+      }
     }
 
     pkt->flags |= AV_PKT_FLAG_KEY;
@@ -175,5 +151,5 @@ AVCodec ff_nice_encoder = {
     .id             = AV_CODEC_ID_NICE,
     .init           = nice_encode_init,
     .encode2        = nice_encode_frame,
-    .pix_fmts       = (const enum AVPixelFormat[]){ AV_PIX_FMT_RGB8 },
+    .pix_fmts       = (const enum AVPixelFormat[]){ AV_PIX_FMT_RGB8, AV_PIX_FMT_NONE },
 };

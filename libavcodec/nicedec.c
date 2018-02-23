@@ -406,5 +406,5 @@ AVCodec ff_nice_decoder = {
     .id             = AV_CODEC_ID_NICE,
     .decode         = nice_decode_frame,
     .capabilities   = AV_CODEC_CAP_DR1,
-    .pix_fmts       = (const enum AVPixelFormat[]){ AV_PIX_FMT_RGB8 },
+    .pix_fmts       = (const enum AVPixelFormat[]){ AV_PIX_FMT_RGB8, AV_PIX_FMT_NONE },
 };
