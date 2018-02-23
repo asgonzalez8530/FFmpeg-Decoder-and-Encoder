@@ -31,7 +31,7 @@ static const uint32_t monoblack_pal[] = { 0x000000, 0xFFFFFF };
 static const uint32_t rgb565_masks[]  = { 0xF800, 0x07E0, 0x001F };
 static const uint32_t rgb444_masks[]  = { 0x0F00, 0x00F0, 0x000F };
 
-static av_cold int bmp_encode_init(AVCodecContext *avctx){
+static av_cold int nice_encode_init(AVCodecContext *avctx){
     switch (avctx->pix_fmt) {
     case AV_PIX_FMT_BGRA:
         avctx->bits_per_coded_sample = 32;
@@ -63,7 +63,7 @@ static av_cold int bmp_encode_init(AVCodecContext *avctx){
     return 0;
 }
 
-static int bmp_encode_frame(AVCodecContext *avctx, AVPacket *pkt,
+static int nice_encode_frame(AVCodecContext *avctx, AVPacket *pkt,
                             const AVFrame *pict, int *got_packet)
 {
     const AVFrame * const p = pict;
@@ -168,8 +168,8 @@ AVCodec ff_nice_encoder = {
     .long_name      = NULL_IF_CONFIG_SMALL("NICE image (a project for CS 3505)"),
     .type           = AVMEDIA_TYPE_VIDEO,
     .id             = AV_CODEC_ID_NICE,
-    .init           = bmp_encode_init,
-    .encode2        = bmp_encode_frame,
+    .init           = nice_encode_init,
+    .encode2        = nice_encode_frame,
     .pix_fmts       = (const enum AVPixelFormat[]){
         AV_PIX_FMT_BGRA, AV_PIX_FMT_BGR24,
         AV_PIX_FMT_RGB565, AV_PIX_FMT_RGB555, AV_PIX_FMT_RGB444,

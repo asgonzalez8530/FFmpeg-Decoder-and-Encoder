@@ -27,7 +27,7 @@
 #include "internal.h"
 #include "msrledec.h"
 
-static int bmp_decode_frame(AVCodecContext *avctx,
+static int nice_decode_frame(AVCodecContext *avctx,
                             void *data, int *got_frame,
                             AVPacket *avpkt)
 {
@@ -367,6 +367,6 @@ AVCodec ff_nice_decoder = {
     .long_name      = NULL_IF_CONFIG_SMALL("NICE image (a project for CS 3505)"),
     .type           = AVMEDIA_TYPE_VIDEO,
     .id             = AV_CODEC_ID_NICE,
-    .decode         = bmp_decode_frame,
+    .decode         = nice_decode_frame,
     .capabilities   = AV_CODEC_CAP_DR1,
 };
