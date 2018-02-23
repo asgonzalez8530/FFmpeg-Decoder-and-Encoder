@@ -31,6 +31,10 @@ static int nice_decode_frame(AVCodecContext *avctx,
                             void *data, int *got_frame,
                             AVPacket *avpkt)
 {
+    // used to print info to the console for debugging 
+    av_log(NULL, AV_LOG_INFO, "\n *** IN NICEDEC.C: entered nice_decode_frame *** \n");
+    
+    
     const uint8_t *buf = avpkt->data;
     int buf_size       = avpkt->size;
     AVFrame *p         = data; // store data as an AVFrame
@@ -46,6 +50,9 @@ static int nice_decode_frame(AVCodecContext *avctx,
     int dsize;
     const uint8_t *buf0 = buf;
     GetByteContext gb;
+    
+    // used to print info to the console for debugging 
+    av_log(NULL, AV_LOG_INFO, "\n *** IN NICEDEC.C: Check that we at least have header size *** \n");
 
     // Nice file format contains NICE then the width and height as integers
     // necessary buffer size must be at least 12 bytes
@@ -55,6 +62,8 @@ static int nice_decode_frame(AVCodecContext *avctx,
         return AVERROR_INVALIDDATA;
     }
 
+    // used to print info to the console for debugging 
+    av_log(NULL, AV_LOG_INFO, "\n *** IN NICEDEC.C: Check Header Begins with NICE *** \n");
     // Check to make sure our file has correct starting header
     if (bytestream_get_byte(&buf) != 'N' ||
         bytestream_get_byte(&buf) != 'I' ||
@@ -65,6 +74,8 @@ static int nice_decode_frame(AVCodecContext *avctx,
         return AVERROR_INVALIDDATA;
     }
 
+    // used to print info to the console for debugging 
+    av_log(NULL, AV_LOG_INFO, "\n *** IN NICEDEC.C: Header begins with NICE *** \n");
     
     // Do not need to include file size in our codec, can be skipped entirely
     //fsize = bytestream_get_le32(&buf);
@@ -77,6 +88,8 @@ static int nice_decode_frame(AVCodecContext *avctx,
     //buf += 2; /* reserved1 */
     //buf += 2; /* reserved2 */
     
+    // used to print info to the console for debugging 
+    av_log(NULL, AV_LOG_INFO, "\n *** IN NICEDEC.C: read width and height from header *** \n");
     // read 32 bits and set as the width
     width  = bytestream_get_le32(&buf);
     // read 32 bits and set as the height
@@ -151,14 +164,19 @@ static int nice_decode_frame(AVCodecContext *avctx,
         if (ihsize > 40)
         alpha = bytestream_get_le32(&buf);
     }
-
+    */
+    
+    // used to print info to the console for debugging 
+    av_log(NULL, AV_LOG_INFO, "\n *** IN NICEDEC.C: Set dimentions *** \n");
     ret = ff_set_dimensions(avctx, width, height > 0 ? height : -(unsigned)height);
+    
     if (ret < 0) {
         av_log(avctx, AV_LOG_ERROR, "Failed to set dimensions %d %d\n", width, height);
         return AVERROR_INVALIDDATA;
     }
-    */
     
+    // used to print info to the console for debugging 
+    av_log(NULL, AV_LOG_INFO, "\n *** IN NICEDEC.C: Set Format to RGB8 *** \n");
     
     avctx->pix_fmt = AV_PIX_FMT_RGB8;
 
@@ -232,6 +250,8 @@ static int nice_decode_frame(AVCodecContext *avctx,
     }
     */
     
+    // used to print info to the console for debugging 
+    av_log(NULL, AV_LOG_INFO, "\n *** IN NICEDEC.C: Get Buffer *** \n");
     if ((ret = ff_get_buffer(avctx, p, 0)) < 0)
         return ret; 
     p->pict_type = AV_PICTURE_TYPE_I;
@@ -244,7 +264,7 @@ static int nice_decode_frame(AVCodecContext *avctx,
     
     
     /* Line size in file multiple of 4 */
-    n = ((avctx->width * depth + 31) / 8) & ~3;
+    //n = ((avctx->width * depth + 31) / 8) & ~3;
 
     /*
     if (n * avctx->height > dsize && comp != BMP_RLE4 && comp != BMP_RLE8) {
@@ -265,8 +285,8 @@ static int nice_decode_frame(AVCodecContext *avctx,
         ptr      = p->data[0] + (avctx->height - 1) * p->linesize[0];
         linesize = -p->linesize[0];
     } else { */
-        ptr      = p->data[0];
-        linesize = p->linesize[0];
+        //ptr      = p->data[0];
+        //linesize = p->linesize[0];
     /*}*/
 
     /*
@@ -339,16 +359,31 @@ static int nice_decode_frame(AVCodecContext *avctx,
         case 32: */
             
             /* May need nested for loop to get one pixel at a time */
-            for (i = 0; i < avctx->height; i++) 
+            /*for (i = 0; i < avctx->height; i++) 
             {
                 memcpy(ptr, buf, n);
                 buf += n;
                 ptr += linesize;
             }
+            */
+    
+    // used to print info to the console for debugging 
+    av_log(NULL, AV_LOG_INFO, "\n *** IN NICEDEC.C: begin read image bits *** \n");        
+    // our own copy loop for each pixel
+    // nice format is represented as top to bottom!
+    ptr = p->data[0];
+    for(i = 0; i < avctx->height; i++) 
+    {
+      for (int j = 0; j < avctx->width; j++)
+      {
+        // places current pixel inside file and advances destination buf
+        bytestream_put_byte(&ptr, buf[0]); 
+        buf++; // advance the pointer to new data
+      }
+    }
             
-            
-            
-            
+    // used to print info to the console for debugging 
+    av_log(NULL, AV_LOG_INFO, "\n *** IN NICEDEC.C: complete read image bits *** \n");       
             /*
             break;
         case 4:
