@@ -134,8 +134,9 @@ static int nice_encode_frame(AVCodecContext *avctx, AVPacket *pkt,
     {
       for (int j = 0; j < avctx->width; j++)
       {
-        bytestream_put_byte(&buf, ptr[0]);
-        ptr++;
+        // places current pixel inside file and advances destination buf
+        bytestream_put_byte(&buf, ptr[0]); 
+        ptr++; // advance the pointer to new data
       }
     }
 
