@@ -96,7 +96,7 @@ FF_ENABLE_DEPRECATION_WARNINGS
     // and related pages.
 
 
-    hsize = 12
+    hsize = 12;
     n_bytes = n_bytes_image + hsize;
     if ((ret = ff_alloc_packet2(avctx, pkt, n_bytes, 0)) < 0)
         return ret;
