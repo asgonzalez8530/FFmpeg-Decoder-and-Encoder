@@ -35,14 +35,27 @@ static const uint32_t rgb444_masks[]  = { 0x0F00, 0x00F0, 0x000F };
 
 static av_cold int nice_encode_init(AVCodecContext *avctx)
 {    
+    // used to print info to the console for debugging 
+    av_log(NULL, AV_LOG_INFO, "IN NICEENC.C: Entered nice_encode_init"); 
+    
+    
     /* there is only one answer to this question may remove in future */
     avctx->bits_per_coded_sample = 8;
+    
+    
+    // used to print info to the console for debugging 
+    av_log(NULL, AV_LOG_INFO, "IN NICEENC.C: Leaving nice_encode_init"); 
     return 0;
 }
 
 static int nice_encode_frame(AVCodecContext *avctx, AVPacket *pkt,
                             const AVFrame *pict, int *got_packet)
 {
+
+    // used to print info to the console for debugging 
+    av_log(NULL, AV_LOG_INFO, "IN NICEENC.C: Entered nice_encode_frame");     
+    
+    
     const AVFrame * const p = pict;
     int n_bytes_image, n_bytes_per_row, n_bytes, i, n, hsize, ret;
     const uint32_t *pal = NULL;
@@ -76,6 +89,8 @@ FF_ENABLE_DEPRECATION_WARNINGS
     case AV_PIX_FMT_BGR4_BYTE:
     case AV_PIX_FMT_GRAY8: */
     
+    // used to print info to the console for debugging 
+    av_log(NULL, AV_LOG_INFO, "IN NICEENC.C: About to do palet"); 
     
     
     // this is palet information for AV_PIX_FMT_RGB8 may not need for our nice fmt
@@ -83,7 +98,8 @@ FF_ENABLE_DEPRECATION_WARNINGS
     avpriv_set_systematic_pal2(palette256, AV_PIX_FMT_RGB8);
     pal = palette256;
     
-    
+    // used to print info to the console for debugging 
+    av_log(NULL, AV_LOG_INFO, "IN NICEENC.C: Passed pallet portion"); 
     
         /*break;
         
@@ -101,6 +117,9 @@ FF_ENABLE_DEPRECATION_WARNINGS
     n_bytes_per_row = ((int64_t)avctx->width * (int64_t)bit_count + 7LL) >> 3LL;
     pad_bytes_per_row = (4 - n_bytes_per_row) & 3;
     n_bytes_image = avctx->height * (n_bytes_per_row + pad_bytes_per_row);
+    
+    // used to print info to the console for debugging 
+    av_log(NULL, AV_LOG_INFO, "IN NICEENC.C: Passed n_bytes_image portion"); 
 
     // STRUCTURE.field refer to the MSVC documentation for BITMAPFILEHEADER
     // and related pages.
@@ -120,7 +139,10 @@ FF_ENABLE_DEPRECATION_WARNINGS
     bytestream_put_byte(&buf, 'E');
     // Write width and height to file                   
     bytestream_put_le32(&buf, avctx->width);      
-    bytestream_put_le32(&buf, avctx->height);         
+    bytestream_put_le32(&buf, avctx->height);    
+    
+    // used to print info to the console for debugging 
+    av_log(NULL, AV_LOG_INFO, "IN NICEENC.C: Wrote NICE header");      
     
     /* Used to put pallet in file, not using pallet
     for (i = 0; i < pal_entries; i++)
