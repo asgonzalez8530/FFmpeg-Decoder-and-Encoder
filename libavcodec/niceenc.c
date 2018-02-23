@@ -76,10 +76,6 @@ static int nice_encode_frame(AVCodecContext *avctx, AVPacket *pkt,
     // used to print info to the console for debugging 
     av_log(NULL, AV_LOG_INFO, "\n *** IN NICEENC.C: Passed pallet portion *** \n"); 
     
-        
-    
-    // MAY NOT NEED but DEFS need solution for n_bytes_image
-    
     
     n_bytes_per_row = ((int64_t)avctx->width * (int64_t)bit_count + 7LL) >> 3LL;
     pad_bytes_per_row = (4 - n_bytes_per_row) & 3;
@@ -109,24 +105,7 @@ static int nice_encode_frame(AVCodecContext *avctx, AVPacket *pkt,
     // used to print info to the console for debugging 
     av_log(NULL, AV_LOG_INFO, "\n *** IN NICEENC.C: Wrote NICE header *** \n");      
     
-    
-    /*
-    // BMP files are bottom-to-top so we start from the end...
-    ptr = p->data[0] + (avctx->height - 1) * p->linesize[0];
-    //buf = pkt->data + hsize;
-    for(i = 0; i < avctx->height; i++) 
-    {
-        
-        memcpy(buf, ptr, n_bytes_per_row);
-        
-        buf += n_bytes_per_row;
-        memset(buf, 0, pad_bytes_per_row);
-        buf += pad_bytes_per_row;
-        ptr -= p->linesize[0]; // ... and go back
-    }
-    */
-    
-    
+
     // our own copy loop for each pixel
     // nice format is represented as top to bottom!
     ptr = p->data[0];
