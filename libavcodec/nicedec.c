@@ -27,7 +27,7 @@
 #include "internal.h"
 #include "msrledec.h"
 
-static int bmp_decode_frame(AVCodecContext *avctx,
+static int nice_decode_frame(AVCodecContext *avctx,
                             void *data, int *got_frame,
                             AVPacket *avpkt)
 {
@@ -59,7 +59,7 @@ static int bmp_decode_frame(AVCodecContext *avctx,
     if (bytestream_get_byte(&buf) != 'N' ||
         bytestream_get_byte(&buf) != 'I' ||
         bytestream_get_byte(&buf) != 'C' ||
-        bytestream_get_byte(&buf) != 'E' ||) 
+        bytestream_get_byte(&buf) != 'E' ) 
     {
         av_log(avctx, AV_LOG_ERROR, "bad magic number\n");
         return AVERROR_INVALIDDATA;
@@ -402,5 +402,5 @@ AVCodec ff_nice_decoder = {
     .id             = AV_CODEC_ID_NICE,
     .decode         = nice_decode_frame,
     .capabilities   = AV_CODEC_CAP_DR1,
-    .pix_fmts       = { AV_PIX_FMT_RGB8 },
+    .pix_fmts       = { AV_PIX_FMT_RGB8 }
 };
