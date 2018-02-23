@@ -31,7 +31,8 @@ static const uint32_t monoblack_pal[] = { 0x000000, 0xFFFFFF };
 static const uint32_t rgb565_masks[]  = { 0xF800, 0x07E0, 0x001F };
 static const uint32_t rgb444_masks[]  = { 0x0F00, 0x00F0, 0x000F };
 
-static av_cold int nice_encode_init(AVCodecContext *avctx){
+static av_cold int nice_encode_init(AVCodecContext *avctx)
+{
    
    // print statement for debugging
    av_log(NULL, AV_LOG_INFO, "\n*** in niceenc.c: Entered nice_encode_init ***\n");
@@ -48,6 +49,9 @@ static av_cold int nice_encode_init(AVCodecContext *avctx){
 static int nice_encode_frame(AVCodecContext *avctx, AVPacket *pkt,
                             const AVFrame *pict, int *got_packet)
 {
+    // print statement for debugging
+    av_log(NULL, AV_LOG_INFO, "\n*** in niceenc.c: entering nice_encode_frame ***\n");
+    
     const AVFrame * const p = pict;
     int n_bytes_image, n_bytes_per_row, n_bytes, i, n, hsize, ret;
     const uint32_t *pal = NULL;
@@ -56,40 +60,22 @@ static int nice_encode_frame(AVCodecContext *avctx, AVPacket *pkt,
     int bit_count = avctx->bits_per_coded_sample;
     uint8_t *ptr, *buf;
 
-#if FF_API_CODED_FRAME
-FF_DISABLE_DEPRECATION_WARNINGS
-    avctx->coded_frame->pict_type = AV_PICTURE_TYPE_I;
-    avctx->coded_frame->key_frame = 1;
-FF_ENABLE_DEPRECATION_WARNINGS
-#endif
-    switch (avctx->pix_fmt) {
-    case AV_PIX_FMT_RGB444:
-        compression = BMP_BITFIELDS;
-        pal = rgb444_masks; // abuse pal to hold color masks
-        pal_entries = 3;
-        break;
-    case AV_PIX_FMT_RGB565:
-        compression = BMP_BITFIELDS;
-        pal = rgb565_masks; // abuse pal to hold color masks
-        pal_entries = 3;
-        break;
-    case AV_PIX_FMT_RGB8:
-    case AV_PIX_FMT_BGR8:
-    case AV_PIX_FMT_RGB4_BYTE:
-    case AV_PIX_FMT_BGR4_BYTE:
-    case AV_PIX_FMT_GRAY8:
-        av_assert1(bit_count == 8);
-        avpriv_set_systematic_pal2(palette256, avctx->pix_fmt);
-        pal = palette256;
-        break;
-    case AV_PIX_FMT_PAL8:
-        pal = (uint32_t *)p->data[1];
-        break;
-    case AV_PIX_FMT_MONOBLACK:
-        pal = monoblack_pal;
-        break;
-    }
+
+    //switch (avctx->pix_fmt) {
+    
+    // print statement for debugging
+    av_log(NULL, AV_LOG_INFO, "\n*** in niceenc.c: beginning palette encoding ***\n");
+    
+    
+    av_assert1(bit_count == 8);
+    avpriv_set_systematic_pal2(palette256, avctx->pix_fmt);
+    pal = palette256;
+        
+    
     if (pal && !pal_entries) pal_entries = 1 << bit_count;
+    // print statement for debugging
+    av_log(NULL, AV_LOG_INFO, "\n*** in niceenc.c: end palette encoding ***\n");
+    
     n_bytes_per_row = ((int64_t)avctx->width * (int64_t)bit_count + 7LL) >> 3LL;
     pad_bytes_per_row = (4 - n_bytes_per_row) & 3;
     n_bytes_image = avctx->height * (n_bytes_per_row + pad_bytes_per_row);
@@ -153,10 +139,8 @@ AVCodec ff_nice_encoder = {
     .init           = nice_encode_init,
     .encode2        = nice_encode_frame,
     .pix_fmts       = (const enum AVPixelFormat[]){
-        AV_PIX_FMT_BGRA, AV_PIX_FMT_BGR24,
-        AV_PIX_FMT_RGB565, AV_PIX_FMT_RGB555, AV_PIX_FMT_RGB444,
-        AV_PIX_FMT_RGB8, AV_PIX_FMT_BGR8, AV_PIX_FMT_RGB4_BYTE, AV_PIX_FMT_BGR4_BYTE, AV_PIX_FMT_GRAY8, AV_PIX_FMT_PAL8,
-        AV_PIX_FMT_MONOBLACK,
+        
+        AV_PIX_FMT_RGB8,
         AV_PIX_FMT_NONE
     },
 };
