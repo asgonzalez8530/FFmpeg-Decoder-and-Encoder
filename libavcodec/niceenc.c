@@ -27,9 +27,11 @@
 #include "nice.h"
 #include "internal.h"
 
+/* these constants aren't used by NICE
 static const uint32_t monoblack_pal[] = { 0x000000, 0xFFFFFF };
 static const uint32_t rgb565_masks[]  = { 0xF800, 0x07E0, 0x001F };
 static const uint32_t rgb444_masks[]  = { 0x0F00, 0x00F0, 0x000F };
+*/
 
 static av_cold int nice_encode_init(AVCodecContext *avctx)
 {    
@@ -73,9 +75,16 @@ FF_ENABLE_DEPRECATION_WARNINGS
     case AV_PIX_FMT_RGB4_BYTE:
     case AV_PIX_FMT_BGR4_BYTE:
     case AV_PIX_FMT_GRAY8: */
-        av_assert1(bit_count == 8);
-        avpriv_set_systematic_pal2(palette256, AV_PIX_FMT_RGB8);
-        pal = palette256;
+    
+    
+    
+    // this is palet information for AV_PIX_FMT_RGB8 may not need for our nice fmt
+    av_assert1(bit_count == 8);
+    avpriv_set_systematic_pal2(palette256, AV_PIX_FMT_RGB8);
+    pal = palette256;
+    
+    
+    
         /*break;
         
     case AV_PIX_FMT_PAL8:
@@ -86,16 +95,19 @@ FF_ENABLE_DEPRECATION_WARNINGS
         break;
     }*/
     
-    // MAY NEED TO BRING BACK
-    //if (pal && !pal_entries) pal_entries = 1 << bit_count;
-    //n_bytes_per_row = ((int64_t)avctx->width * (int64_t)bit_count + 7LL) >> 3LL;
-    //pad_bytes_per_row = (4 - n_bytes_per_row) & 3;
-    //n_bytes_image = avctx->height * (n_bytes_per_row + pad_bytes_per_row);
+    // MAY NOT NEED but DEFS need solution for n_bytes_image
+    
+    if (pal && !pal_entries) pal_entries = 1 << bit_count;
+    n_bytes_per_row = ((int64_t)avctx->width * (int64_t)bit_count + 7LL) >> 3LL;
+    pad_bytes_per_row = (4 - n_bytes_per_row) & 3;
+    n_bytes_image = avctx->height * (n_bytes_per_row + pad_bytes_per_row);
 
     // STRUCTURE.field refer to the MSVC documentation for BITMAPFILEHEADER
     // and related pages.
 
-
+    /* NICE format header size is always 12 bytes, The chars 'N''I''C''E'
+     * followed by the width and height
+     */
     hsize = 12;
     n_bytes = n_bytes_image + hsize;
     if ((ret = ff_alloc_packet2(avctx, pkt, n_bytes, 0)) < 0)
