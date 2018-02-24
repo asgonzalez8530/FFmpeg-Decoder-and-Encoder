@@ -1,24 +1,11 @@
-/*
- * BMP image format decoder
- * Copyright (c) 2005 Mans Rullgard
- *
- * This file is part of FFmpeg.
- *
- * FFmpeg is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
- *
- * FFmpeg is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with FFmpeg; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
- */
-
+/**
+* Author: Aaron Bellis and  Anastasia Gonzalez
+* UID: u0981638 and u0985898
+* Date: 2/23/18
+* Class: 3505
+* Purpose:
+* How to run: 
+*/
 #include <inttypes.h>
 
 #include "avcodec.h"
@@ -31,10 +18,6 @@ static int nice_decode_frame(AVCodecContext *avctx,
                             void *data, int *got_frame,
                             AVPacket *avpkt)
 {
-    // used to print info to the console for debugging 
-    av_log(NULL, AV_LOG_INFO, "\n *** IN NICEDEC.C: entered nice_decode_frame *** \n");
-    
-    
     const uint8_t *buf = avpkt->data;
     int buf_size       = avpkt->size;
     AVFrame *p         = data; // store data as an AVFrame
@@ -50,9 +33,6 @@ static int nice_decode_frame(AVCodecContext *avctx,
     int dsize;
     const uint8_t *buf0 = buf;
     GetByteContext gb;
-    
-    // used to print info to the console for debugging 
-    av_log(NULL, AV_LOG_INFO, "\n *** IN NICEDEC.C: Check that we at least have header size *** \n");
 
     // Nice file format contains NICE then the width and height as integers
     // necessary buffer size must be at least 12 bytes
@@ -62,8 +42,6 @@ static int nice_decode_frame(AVCodecContext *avctx,
         return AVERROR_INVALIDDATA;
     }
 
-    // used to print info to the console for debugging 
-    av_log(NULL, AV_LOG_INFO, "\n *** IN NICEDEC.C: Check Header Begins with NICE *** \n");
     // Check to make sure our file has correct starting header
     if (bytestream_get_byte(&buf) != 'N' ||
         bytestream_get_byte(&buf) != 'I' ||
@@ -74,46 +52,29 @@ static int nice_decode_frame(AVCodecContext *avctx,
         return AVERROR_INVALIDDATA;
     }
 
-    // used to print info to the console for debugging 
-    av_log(NULL, AV_LOG_INFO, "\n *** IN NICEDEC.C: Header begins with NICE *** \n");
-    
-    
-    // used to print info to the console for debugging 
-    av_log(NULL, AV_LOG_INFO, "\n *** IN NICEDEC.C: read width and height from header *** \n");
+
     // read 32 bits and set as the width
     width  = bytestream_get_le32(&buf);
     // read 32 bits and set as the height
     height = bytestream_get_le32(&buf);
 
-
-    
-    // used to print info to the console for debugging 
-    av_log(NULL, AV_LOG_INFO, "\n *** IN NICEDEC.C: Set dimentions *** \n");
     ret = ff_set_dimensions(avctx, width, height > 0 ? height : -(unsigned)height);
     
     if (ret < 0) {
         av_log(avctx, AV_LOG_ERROR, "Failed to set dimensions %d %d\n", width, height);
         return AVERROR_INVALIDDATA;
     }
-    
-    // used to print info to the console for debugging 
-    av_log(NULL, AV_LOG_INFO, "\n *** IN NICEDEC.C: Set Format to RGB8 *** \n");
-    
+        
     avctx->pix_fmt = AV_PIX_FMT_RGB8;
 
-    
-    
-    // used to print info to the console for debugging 
-    av_log(NULL, AV_LOG_INFO, "\n *** IN NICEDEC.C: Get Buffer *** \n");
+
     if ((ret = ff_get_buffer(avctx, p, 0)) < 0)
         return ret; 
     p->pict_type = AV_PICTURE_TYPE_I;
     p->key_frame = 1;
 
 
-    
-    // used to print info to the console for debugging 
-    av_log(NULL, AV_LOG_INFO, "\n *** IN NICEDEC.C: begin read image bits *** \n");        
+           
     // our own copy loop for each pixel
     // nice format is represented as top to bottom!
     ptr = p->data[0];
@@ -125,10 +86,7 @@ static int nice_decode_frame(AVCodecContext *avctx,
         bytestream_put_byte(&ptr, buf[0]); 
         buf++; // advance the pointer to new data
       }
-    }
-            
-    // used to print info to the console for debugging 
-    av_log(NULL, AV_LOG_INFO, "\n *** IN NICEDEC.C: complete read image bits *** \n");       
+    }       
 
     *got_frame = 1;
 

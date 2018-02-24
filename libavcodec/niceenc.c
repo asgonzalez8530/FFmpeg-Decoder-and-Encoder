@@ -1,24 +1,11 @@
-/*
- * BMP image format encoder
- * Copyright (c) 2006, 2007 Michel Bardiaux
- * Copyright (c) 2009 Daniel Verkamp <daniel at drv.nu>
- *
- * This file is part of FFmpeg.
- *
- * FFmpeg is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
- *
- * FFmpeg is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with FFmpeg; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
- */
+/**
+* Author: Aaron Bellis and  Anastasia Gonzalez
+* UID: u0981638 and u0985898
+* Date: 2/23/18
+* Class: 3505
+* Purpose:
+* How to run: 
+*/
 
 #include "libavutil/imgutils.h"
 #include "libavutil/avassert.h"
@@ -35,26 +22,16 @@ static const uint32_t rgb444_masks[]  = { 0x0F00, 0x00F0, 0x000F };
 
 static av_cold int nice_encode_init(AVCodecContext *avctx)
 {    
-    // used to print info to the console for debugging 
-    av_log(NULL, AV_LOG_INFO, "\n *** IN NICEENC.C: Entered nice_encode_init *** \n"); 
-    
-    
+
     /* there is only one answer to this question may remove in future */
     avctx->bits_per_coded_sample = 8;
     
-    
-    // used to print info to the console for debugging 
-    av_log(NULL, AV_LOG_INFO, "\n *** IN NICEENC.C: Leaving nice_encode_init *** \n"); 
     return 0;
 }
 
 static int nice_encode_frame(AVCodecContext *avctx, AVPacket *pkt,
                             const AVFrame *pict, int *got_packet)
 {
-
-    // used to print info to the console for debugging 
-    av_log(NULL, AV_LOG_INFO, "\n *** IN NICEENC.C: Entered nice_encode_frame *** \n");     
-    
     
     const AVFrame * const p = pict;
     int n_bytes_image, n_bytes_per_row, n_bytes, i, n, hsize, ret;
@@ -65,25 +42,12 @@ static int nice_encode_frame(AVCodecContext *avctx, AVPacket *pkt,
     uint8_t *ptr, *buf;
 
 
-    
-    // used to print info to the console for debugging 
-    av_log(NULL, AV_LOG_INFO, "\n *** IN NICEENC.C: About to do palet *** \n"); 
-    
-    
     // this av_assert1 we believe is used to help figure out line size
     av_assert1(bit_count == 8);
-    
-    // used to print info to the console for debugging 
-    av_log(NULL, AV_LOG_INFO, "\n *** IN NICEENC.C: Passed pallet portion *** \n"); 
-    
     
     n_bytes_per_row = ((int64_t)avctx->width * (int64_t)bit_count + 7LL) >> 3LL;
     pad_bytes_per_row = (4 - n_bytes_per_row) & 3;
     n_bytes_image = avctx->height * (n_bytes_per_row + pad_bytes_per_row);
-    
-    // used to print info to the console for debugging 
-    av_log(NULL, AV_LOG_INFO, "\n *** IN NICEENC.C: Passed n_bytes_image portion *** \n"); 
-
 
     /* NICE format header size is always 12 bytes, The chars 'N''I''C''E'
      * followed by the width and height
@@ -101,10 +65,6 @@ static int nice_encode_frame(AVCodecContext *avctx, AVPacket *pkt,
     // Write width and height to file                   
     bytestream_put_le32(&buf, avctx->width);      
     bytestream_put_le32(&buf, avctx->height);    
-    
-    // used to print info to the console for debugging 
-    av_log(NULL, AV_LOG_INFO, "\n *** IN NICEENC.C: Wrote NICE header *** \n");      
-    
 
     // our own copy loop for each pixel
     // nice format is represented as top to bottom!
